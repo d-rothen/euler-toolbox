@@ -26,17 +26,17 @@ def _output_path(zip_path: str, suffix: str) -> str:
 def sample_dataset(
     dataset_paths: list[TrackedPath] = ToolParam(
         help="Dataset archives. The first is subsampled; the rest are index-matched against it.",
-        placeholder="dataset_path",
+        placeholder="dataset.path[]",
     ),
     sample_rate: int = ToolParam(
         default=3,
         help="Take every Nth file from the primary (first) dataset.",
-        placeholder="sample_cfg:1",
+        placeholder="sample.rate",
     ),
     output_suffix: str = ToolParam(
         default="_8k",
         help="Suffix appended to output archive names.",
-        placeholder="sample_cfg:2",
+        placeholder="sample.suffix",
     ),
 ) -> None:
     from ds_crawler.parser import copy_dataset, get_files, index_dataset_from_path

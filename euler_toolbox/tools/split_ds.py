@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 def split_ds(
     source_paths: list[TrackedPath] = ToolParam(
         help="Paths to dataset directories or archives to split.",
-        placeholder="source_path",
+        placeholder="dataset.path[]",
     ),
     suffixes: list[str] = ToolParam(
         default=["train.zip", "val.zip", "test.zip"],

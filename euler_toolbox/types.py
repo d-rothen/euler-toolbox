@@ -66,9 +66,9 @@ def render_placeholder(placeholder: str, style: str = "mustache") -> str:
     """Wrap a raw placeholder name according to *style*.
 
     Styles:
-    - ``mustache``: ``{{dataset_path:1}}``
-    - ``shell``:    ``${dataset_path:1}``
-    - ``plain``:    ``dataset_path:1``
+    - ``mustache``: ``{{dataset.path[]}}``
+    - ``shell``:    ``${dataset.path[]}``
+    - ``plain``:    ``dataset.path[]``
     """
     if style == "mustache":
         return "{{" + placeholder + "}}"

@@ -138,7 +138,7 @@ def _build_schema(info: ToolInfo, fmt: str, style: str) -> dict:
         "global_options": {
             "origin_map": {
                 "cli_name": "--origin-map",
-                "placeholder": render_placeholder("origin_map:1", style),
+                "placeholder": render_placeholder("origin.path", style),
                 "format": "<local_prefix>=<real_prefix>[,...]",
                 "help": "Comma-separated prefix rewrite rules for path origins.",
             },
@@ -170,12 +170,14 @@ def _schema_type(p: ParamInfo) -> str:
 
 
 def _derive_origin_placeholder(placeholder: str) -> str:
-    """``dataset_path:1`` -> ``dataset_origin:1``."""
-    if "_path" in placeholder:
-        return placeholder.replace("_path", "_origin", 1)
-    if "path" in placeholder:
-        return placeholder.replace("path", "origin", 1)
-    return placeholder + "_origin"
+    """``dataset.path[]`` -> ``dataset.path[]:origin``.
+
+    The origin is still a path — the ``:origin`` suffix distinguishes it
+    from the working-copy placeholder.
+    """
+    if placeholder.endswith("[]"):
+        return placeholder[:-2] + "[]:origin"
+    return placeholder + ":origin"
 
 
 def _build_template(info: ToolInfo, style: str) -> str:
