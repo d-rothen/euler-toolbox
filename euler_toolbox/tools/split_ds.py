@@ -22,9 +22,11 @@ def split_ds(
     suffixes: list[str] = ToolParam(
         default=["train.zip", "val.zip", "test.zip"],
         help="Output suffixes for each split.",
+        placeholder="split.suffixes",
     ),
     ratios: list[int] = ToolParam(
         default=[80, 10, 10],
+        placeholder="split.ratios",
         help="Split ratios (must sum to 100).",
     ),
 ) -> None:

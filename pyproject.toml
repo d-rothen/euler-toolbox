@@ -14,6 +14,7 @@ dependencies = [
     "ds-crawler @ git+https://github.com/d-rothen/ds-crawler",
     "euler-train[images,gpu] @ git+https://github.com/d-rothen/euler-train",
     "euler-loading @ git+https://github.com/d-rothen/euler-loading.git",
+    "euler-fog @ git+https://github.com/d-rothen/euler-fog.git",
 ]
 
 [project.scripts]

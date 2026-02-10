@@ -71,6 +71,7 @@ class ToolInfo:
     description: str
     func: Callable[..., Any]
     params: list[ParamInfo] = field(default_factory=list)
+    sub_schemas: dict[str, dict[str, Any]] | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -168,8 +169,20 @@ def _introspect_params(func: Callable[..., Any]) -> list[ParamInfo]:
 def tool(
     name: str,
     description: str | None = None,
+    sub_schemas: dict[str, dict[str, Any]] | None = None,
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-    """Register a function as a CLI tool."""
+    """Register a function as a CLI tool.
+
+    *sub_schemas* maps a **parameter name** to the schema of the file
+    that parameter points to.  For example, a tool that takes
+    ``--fog-config`` can declare::
+
+        sub_schemas={"fog_config": { ... }}
+
+    The dict is included verbatim in the ``schema`` output under the
+    ``sub_schemas`` key so pipeline orchestrators know how to construct
+    each config file.
+    """
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         desc = description or (func.__doc__ or "").strip().split("\n")[0]
@@ -178,6 +191,7 @@ def tool(
             description=desc,
             func=func,
             params=_introspect_params(func),
+            sub_schemas=sub_schemas,
         )
         _TOOL_REGISTRY[name] = info
         return func

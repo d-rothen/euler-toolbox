@@ -150,6 +150,9 @@ def _build_schema(info: ToolInfo, fmt: str, style: str) -> dict:
         },
     }
 
+    if info.sub_schemas:
+        schema["sub_schemas"] = info.sub_schemas
+
     if fmt == "template":
         schema["template"] = _build_template(info, style)
 
