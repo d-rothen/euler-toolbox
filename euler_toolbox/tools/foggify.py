@@ -25,39 +25,118 @@ _REQUIRED_MODALITIES = {"rgb", "depth", "sky_mask"}
 # so pipeline tooling knows how to construct the JSON file.
 # ---------------------------------------------------------------------------
 
+_HETERO_BLOCK_SCHEMA = {
+    "type": "object",
+    "help": "Perlin FBM spatial-variation parameters.",
+    "properties": {
+        "scales": {"type": "string|list[int]", "help": "'auto' or explicit list of power-of-2 scales."},
+        "min_scale": {"type": "integer", "help": "Minimum Perlin noise scale."},
+        "max_scale": {"type": "integer|null", "help": "Maximum scale; null = max(H, W)."},
+        "min_factor": {"type": "float", "help": "Lower bound of the multiplicative factor."},
+        "max_factor": {"type": "float", "help": "Upper bound of the multiplicative factor."},
+        "normalize_to_mean": {"type": "boolean", "help": "Rescale factor field so spatial mean = 1."},
+    },
+}
+
 _FOG_CONFIG_SCHEMA: dict = {
     "description": (
         "Fog simulation parameters.  Passed as a JSON file via --fog-config."
     ),
+    "default": {
+        "seed": 1337,
+        "depth_scale": 1.0,
+        "resize_depth": True,
+        "contrast_threshold": 0.05,
+        "device": "cpu",
+        "gpu_batch_size": 4,
+        "selection": {
+            "mode": "weighted",
+            "weights": {
+                "uniform": 1.0,
+                "heterogeneous_k": 0.0,
+                "heterogeneous_ls": 0.0,
+                "heterogeneous_k_ls": 0.0,
+            },
+        },
+        "models": {
+            "uniform": {
+                "visibility_m": {
+                    "dist": "normal",
+                    "mean": 300.0,
+                    "std": 100.0,
+                    "min": 100.0,
+                },
+                "atmospheric_light": "from_sky",
+            },
+            "heterogeneous_k": {
+                "visibility_m": {"dist": "constant", "value": 80.0},
+                "atmospheric_light": "from_sky",
+                "k_hetero": {
+                    "scales": "auto",
+                    "min_scale": 2,
+                    "max_scale": None,
+                    "min_factor": 0.0,
+                    "max_factor": 1.0,
+                    "normalize_to_mean": True,
+                },
+            },
+            "heterogeneous_ls": {
+                "visibility_m": {"dist": "constant", "value": 80.0},
+                "atmospheric_light": "from_sky",
+                "ls_hetero": {
+                    "scales": "auto",
+                    "min_scale": 2,
+                    "max_scale": None,
+                    "min_factor": 0.0,
+                    "max_factor": 1.0,
+                    "normalize_to_mean": False,
+                },
+            },
+            "heterogeneous_k_ls": {
+                "visibility_m": {"dist": "constant", "value": 80.0},
+                "atmospheric_light": "from_sky",
+                "k_hetero": {
+                    "scales": "auto",
+                    "min_scale": 2,
+                    "max_scale": None,
+                    "min_factor": 0.0,
+                    "max_factor": 1.0,
+                    "normalize_to_mean": True,
+                },
+                "ls_hetero": {
+                    "scales": "auto",
+                    "min_scale": 2,
+                    "max_scale": None,
+                    "min_factor": 0.0,
+                    "max_factor": 1.0,
+                    "normalize_to_mean": False,
+                },
+            },
+        },
+    },
     "properties": {
         "seed": {
             "type": "integer|null",
-            "default": None,
             "help": "RNG seed for reproducibility. null = non-deterministic.",
         },
         "depth_scale": {
             "type": "float",
-            "default": 1.0,
             "help": "Multiplier applied to depth values after loading.",
         },
         "resize_depth": {
             "type": "boolean",
-            "default": True,
             "help": "Resize depth map to match RGB resolution.",
         },
         "contrast_threshold": {
             "type": "float",
-            "default": 0.05,
             "help": "Visibility-to-attenuation threshold C_t: k = -ln(C_t) / V.",
         },
         "device": {
             "type": "string",
-            "default": "cpu",
             "help": "Compute device: cpu, cuda, mps.",
         },
         "gpu_batch_size": {
             "type": "integer",
-            "default": 4,
             "help": "Batch size for GPU processing.",
         },
         "selection": {
@@ -114,30 +193,8 @@ _FOG_CONFIG_SCHEMA: dict = {
                             "type": "string|list[float]",
                             "help": "'from_sky' or an [R,G,B] colour value.",
                         },
-                        "k_hetero": {
-                            "type": "object",
-                            "help": "Spatially-varying attenuation (optional).",
-                            "properties": {
-                                "scales": {"type": "string|list[int]", "default": "auto"},
-                                "min_scale": {"type": "integer", "default": 2},
-                                "max_scale": {"type": "integer|null", "default": None},
-                                "min_factor": {"type": "float", "default": 0.0},
-                                "max_factor": {"type": "float", "default": 1.0},
-                                "normalize_to_mean": {"type": "boolean", "default": True},
-                            },
-                        },
-                        "ls_hetero": {
-                            "type": "object",
-                            "help": "Spatially-varying airlight (optional).",
-                            "properties": {
-                                "scales": {"type": "string|list[int]", "default": "auto"},
-                                "min_scale": {"type": "integer", "default": 2},
-                                "max_scale": {"type": "integer|null", "default": None},
-                                "min_factor": {"type": "float", "default": 0.0},
-                                "max_factor": {"type": "float", "default": 1.0},
-                                "normalize_to_mean": {"type": "boolean", "default": False},
-                            },
-                        },
+                        "k_hetero": {**_HETERO_BLOCK_SCHEMA, "help": "Spatially-varying attenuation (optional)."},
+                        "ls_hetero": {**_HETERO_BLOCK_SCHEMA, "help": "Spatially-varying airlight (optional)."},
                     },
                 },
             },
