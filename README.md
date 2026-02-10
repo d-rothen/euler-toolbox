@@ -10,6 +10,8 @@ built-in path-origin tracking for HPC / Slurm workflows.
 pip install -e .
 # or, if dependencies are already installed separately:
 uv pip install -e . --no-deps
+
+uv pip install "euler-toolbox @ git+https://github.com/d-rothen/euler-toolbox.git"
 ```
 
 ## Quick start
@@ -171,6 +173,8 @@ euler-toolbox run sample-dataset \
 | `$TMPDIR/depth.zip` | `/scratch/project/depth.zip` | `--origin-map` prefix match (priority 2) |
 | `$TMPDIR/seg.zip` | `/scratch/project/seg.zip` | `--origin-map` prefix match (priority 2) |
 
+
+
 ### What the tool sees
 
 Inside the tool function, every `TrackedPath` parameter is a simple object:
@@ -184,6 +188,21 @@ def my_tool(data: TrackedPath = ToolParam(...)):
 ```
 
 For `list[TrackedPath]` parameters, the tool receives a `list` of these objects.
+
+```sh
+euler-toolbox run split-ds \
+  --source-paths /tmp/rgb.zip \
+  --source-paths /tmp/depth.zip \
+  --source-paths /tmp/seg.zip \
+  --source-paths-origin /scratch/rgb.zip \
+  --source-paths-origin /scratch/depth.zip
+```
+
+| Index | `--source-paths` | `--source-paths-origin` | Resolved Origin |
+|-------|------------------|-------------------------|-----------------|
+| 0 | `/tmp/rgb.zip` | `/scratch/rgb.zip` | `/scratch/rgb.zip` (explicit) |
+| 1 | `/tmp/depth.zip` | `/scratch/depth.zip` | `/scratch/depth.zip` (explicit) |
+| 2 | `/tmp/seg.zip` | (none) | Falls through to `--origin-map`, then fallback |
 
 ---
 
