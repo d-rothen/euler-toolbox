@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+from importlib.metadata import metadata
 from pathlib import Path
 from typing import Annotated
 
@@ -29,6 +30,32 @@ app = typer.Typer(
     add_completion=False,
     rich_markup_mode=None,
 )
+
+
+def _get_readme() -> str:
+    """Return README contents from package metadata, falling back to file."""
+    try:
+        body = metadata("euler-toolbox").get_payload()  # type: ignore[attr-defined]
+        if isinstance(body, str) and body.strip():
+            return body
+    except Exception:
+        pass
+    readme_path = Path(__file__).resolve().parent.parent / "README.md"
+    return readme_path.read_text(encoding="utf-8")
+
+
+@app.callback(invoke_without_command=True)
+def _main_callback(
+    ctx: typer.Context,
+    readme: Annotated[
+        bool, typer.Option("--readme", help="Print the README and exit.")
+    ] = False,
+) -> None:
+    if readme:
+        typer.echo(_get_readme())
+        raise typer.Exit()
+    if ctx.invoked_subcommand is None:
+        typer.echo(ctx.get_help())
 
 
 # ---------------------------------------------------------------------------
