@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "euler-toolbox"
+version = "0.1.0"
+description = "Unified CLI for dataset-processing tools."
+requires-python = ">=3.11"
+dependencies = [
+    "typer>=0.12",
+    "click>=8.1",
+    "ds-crawler @ git+https://github.com/d-rothen/ds-crawler",
+    "euler-train[images,gpu] @ git+https://github.com/d-rothen/euler-train",
+    "euler-loading @ git+https://github.com/d-rothen/euler-loading.git",
+]
+
+[project.scripts]
+euler-toolbox = "euler_toolbox.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["euler_toolbox*"]
