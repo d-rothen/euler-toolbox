@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import logging
+import subprocess
+import sys
 from importlib.metadata import metadata
 from pathlib import Path
 from typing import Annotated, Optional
@@ -68,6 +70,40 @@ def list_cmd() -> None:
     """List all registered tools."""
     for info in list_tools():
         typer.echo(f"{info.name:30s} {info.description}")
+
+
+# ---------------------------------------------------------------------------
+# ``update`` command
+# ---------------------------------------------------------------------------
+
+_SUITE_JSON = Path(__file__).resolve().parent / "tools" / "info" / "euler_suite.json"
+
+
+@app.command("update")
+def update_cmd() -> None:
+    """Install euler-suite packages compatible with the current Python."""
+    current = (sys.version_info.major, sys.version_info.minor)
+    suite = json.loads(_SUITE_JSON.read_text(encoding="utf-8"))
+
+    uris: list[str] = []
+    for pkg in suite["packages"]:
+        required = tuple(int(x) for x in pkg["python_version"].split("."))
+        if current >= required:
+            uris.extend(pkg["uris"])
+
+    if not uris:
+        typer.echo(f"No packages compatible with Python {current[0]}.{current[1]}.")
+        raise typer.Exit(1)
+
+    for uri in uris:
+        typer.echo(f"Installing: {uri}")
+        result = subprocess.run(
+            ["uv", "pip", "install", uri],
+            check=False,
+        )
+        if result.returncode != 0:
+            typer.echo(f"Failed to install: {uri}", err=True)
+            raise typer.Exit(result.returncode)
 
 
 # ---------------------------------------------------------------------------
