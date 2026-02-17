@@ -20,5 +20,8 @@ dependencies = [
 [project.scripts]
 euler-toolbox = "euler_toolbox.cli:main"
 
+[tool.setuptools.package-data]
+"euler_toolbox" = ["tools/info/*.json"]
+
 [tool.setuptools.packages.find]
 include = ["euler_toolbox*"]
