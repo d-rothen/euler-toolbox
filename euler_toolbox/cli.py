@@ -6,7 +6,7 @@ import json
 import logging
 from importlib.metadata import metadata
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Optional
 
 import click
 import typer
@@ -77,7 +77,7 @@ def list_cmd() -> None:
 
 @app.command("schema")
 def schema_cmd(
-    tool_name: Annotated[str | None, typer.Argument(help="Tool name.")] = None,
+    tool_name: Annotated[Optional[str], typer.Argument(help="Tool name.")] = None,
     all_tools: Annotated[
         bool, typer.Option("--all", help="Emit schemas for every tool.")
     ] = False,

@@ -1,0 +1,14 @@
+{
+    "packages":
+    [
+        {
+            "python_version": "3.9",
+            "uris": [
+                "euler-loading @ git+https://github.com/d-rothen/euler-loading.git",
+                "euler-fog[gpu,progress] @ git+https://github.com/d-rothen/euler-fog",
+                "euler-train[images,gpu] @ git+https://github.com/d-rothen/euler-train",
+                "ds-crawler[progress] @ git+https://github.com/d-rothen/ds-crawler"
+            ]
+        }
+    ]
+}
